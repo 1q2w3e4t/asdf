@@ -1,12 +1,144 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8">
-    <title>asdf</title>
-  </head>
-  <body>
-    <h2>롤 신클라 다운 링크</h2>
-    <h2>https://m.blog.naver.com/wjdrms_pj7/221688824613</h2>
-    <h2>서비스 -> vcg 시작</h2>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자리 뽑기 프로그램</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        #seat-container {
+            display: grid;
+            grid-template-columns: repeat(5, 100px); /* 5개의 열로 설정 */
+            grid-template-rows: repeat(5, 100px); /* 5개의 행으로 설정 */
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .seat {
+            width: 100px;
+            height: 100px;
+            background-color: lightblue;
+            border: 2px solid #007BFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="seat-container"></div>
+
+    <button id="add-seat">자리 추가</button>
+    <button id="remove-seat">자리 삭제</button>
+    <button id="randomize">뽑기</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const seatContainer = document.getElementById("seat-container");
+            const addButton = document.getElementById("add-seat");
+            const removeButton = document.getElementById("remove-seat");
+            const randomizeButton = document.getElementById("randomize");
+
+            let seats = [];
+            let studentList = ['학생1', '학생2', '학생3', '학생4', '학생5', '학생6', '학생7', '학생8'];
+
+            // 자리 추가 함수
+            addButton.addEventListener("click", () => {
+                const seat = createSeat();
+                seatContainer.appendChild(seat);
+                seats.push(seat);
+            });
+
+            // 자리 삭제 함수
+            removeButton.addEventListener("click", () => {
+                const seat = seats.pop();
+                if (seat) {
+                    seatContainer.removeChild(seat);
+                }
+            });
+
+            // 학생 랜덤 배정 함수
+            randomizeButton.addEventListener("click", () => {
+                const shuffledStudents = [...studentList].sort(() => Math.random() - 0.5);
+                seats.forEach((seat, index) => {
+                    if (shuffledStudents[index]) {
+                        seat.innerText = shuffledStudents[index];
+                    }
+                });
+            });
+
+            // 자리를 만들고 설정하는 함수
+            function createSeat() {
+                const seat = document.createElement("div");
+                seat.classList.add("seat");
+
+                // 스타일 설정 (JavaScript로 직접 설정)
+                seat.style.width = '100px';
+                seat.style.height = '100px';
+                seat.style.backgroundColor = 'lightblue';
+                seat.style.border = '2px solid #007BFF';
+                seat.style.display = 'flex';
+                seat.style.justifyContent = 'center';
+                seat.style.alignItems = 'center';
+                seat.style.cursor = 'pointer';
+                seat.style.position = 'relative';
+
+                // 자리 회전 및 이동 기능 (드래그)
+                seat.draggable = true;
+
+                seat.addEventListener("dragstart", (event) => {
+                    event.dataTransfer.setData("text/plain", seat.innerText);
+                    seat.style.opacity = "0.5";
+                });
+
+                seat.addEventListener("dragend", () => {
+                    seat.style.opacity = "1";
+                });
+
+                seat.addEventListener("dragover", (event) => {
+                    event.preventDefault();
+                });
+
+                seat.addEventListener("drop", (event) => {
+                    event.preventDefault();
+                    const draggedText = event.dataTransfer.getData("text/plain");
+                    seat.innerText = draggedText;
+                });
+
+                // 자리 90도 회전 기능
+                seat.addEventListener("click", () => {
+                    let currentRotation = seat.style.transform || "rotate(0deg)";
+                    let newRotation = (parseInt(currentRotation.replace("rotate(", "").replace("deg)", "")) + 90) % 360;
+                    seat.style.transform = `rotate(${newRotation}deg)`;
+                });
+
+                return seat;
+            }
+        });
+    </script>
+</body>
 </html>
